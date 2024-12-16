@@ -1,23 +1,4 @@
-setTimeout(() => {
-    process()
-}, 5000);
-
-
-const flow = [
-        // {
-        //     type: 'input',
-        //     name: 'SFYZZFJ',
-        //     index: 1,
-        //     value: '否',
-        //     info: '纸质附件'
-        // },
-    // {
-    //     type: 'input',
-    //     name: 'xtywbillVO.fdzs',
-    //     index: 1,
-    //     value: '0',
-    //     info: '纸张数'
-    // },
+const _flow = [
     {
         type: 'click',
         path: '/html/body/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div/form/div[2]/div[2]/div/div[2]/div/div/div/div/input'
@@ -54,12 +35,9 @@ const flow = [
         value: '这是一份说明'
     },
     {
-        type: 'click',
-        path: '/html/body/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div/form/div[3]/div/div/div[2]/div/div/textarea'，
+        type: 'refresh',
+        path: '/html/body/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div/form/div[3]/div/div/div[2]/div/div/textarea',
         info: '说明需要进行更新'
-    },
-    {
-        "": ""
     },
     {
         type: 'click',
@@ -103,10 +81,56 @@ const flow = [
         type: 'click',
         path: '/html/body/div[14]/div[1]/div[1]/ul/li',
         info: '选择账号'
-    }
+    },
 ];
 
-let mutable_window = '14';
+const __flow = [
+    /** table */
+    {
+        type: 'click',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[1]/div/div/div/div/button[1]',
+        info: '新增表格'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[3]/table/tbody/tr[3]/td[2]',
+        info: '通过清除按钮锁定表格'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[4]/div/div[2]/div/div/div/button',
+        info: 'search crate'
+    },
+    {
+        type: 'search',
+        path: '/html/body/div[14]/div/div[2]/div/div/div[1]/div[2]/div[3]/div/input',
+        value: '备用'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[14]/div/div[2]/div/div/div[1]/div[2]/div[4]/button',
+        info: '搜索'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[14]/div/div[3]/div/button[2]',
+        info: '确定'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[14]/div/div',
+        info: '价格总计'
+    },
+    {
+        type: 'search',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[14]/div/div[2]/table/tbody/tr/td[2]/textarea',
+        value: '10000'
+    }
+]
+
+const flow = [..._flow, ...__flow];
+
+let table_window = '14';
 
 const opration = {
     input(item, iframe_document) {
@@ -118,6 +142,8 @@ const opration = {
 
         element.value = value;
 
+        element.focus();
+        element.dispatchEvent(new Event('change'));
         console.info(`[running] info: ${info}`);
     },
 
@@ -127,7 +153,7 @@ const opration = {
             path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
         ).singleNodeValue;
 
-        while (!element && Number(mutable_window) < 20) {
+        while (!element && Number(mutable_window) < 26) {
             path = String(path).replace(mutable_window, Number(mutable_window) + 1);
             element = iframe_document.evaluate(
                 path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
@@ -140,8 +166,8 @@ const opration = {
             throw new Error("never find a usable element.");
         }
 
-        element.click();
-
+        console.log(element);
+        element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
         mutable_window = '14';
 
         if (info)
@@ -154,7 +180,7 @@ const opration = {
             path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
         ).singleNodeValue;
 
-        while (!element && Number(mutable_window) < 20) {
+        while (!element && Number(mutable_window) < 26) {
             path = String(path).replace(mutable_window, Number(mutable_window) + 1);
             element = iframe_document.evaluate(
                 path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
@@ -170,6 +196,21 @@ const opration = {
         mutable_window = '14';
 
         element.value = value;
+        element.focus();
+        element.dispatchEvent(new Event('input'));
+    },
+
+    refresh(item, iframe_document) {
+        const { path, info } = item;
+
+        let element = iframe_document.evaluate(
+            path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+        ).singleNodeValue;
+
+        element.focus();
+        element.dispatchEvent(new Event('change'));
+
+        console.log(info);
     }
 }
 
@@ -180,7 +221,7 @@ function run(step, iframe_document) {
             opration[item.type](item, iframe_document);
             setTimeout(() => {
                 run(step + 1, iframe_document);
-            }, 2000);
+            }, 3000);
         } catch (error) {
             console.error(item);
             throw error;

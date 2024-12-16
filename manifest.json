@@ -4,16 +4,18 @@
     "description": "Base Level Extension",
     "version": "1.0",
     "action": {
-
+        "default_popup": "hello.html",
         "default_icon": "hello_extensions.png"
     },
     "content_scripts": [
         {
             "js": [
-                "scripts/content.js"
+                "scripts/content.js",
+                "scripts/route.js"
             ],
             "matches": [
-                "*://fsscn.powerchina.cn:*/grm/gris/mapp/std-tax-invoiceweb/assets/*"
+                "*://fsscn.powerchina.cn:*/*",
+                "*://yrz.powerchina.cn/*"
             ]
         }
     ]
