@@ -60,25 +60,34 @@ function _process() {
 
         durantion += 2000;
         setTimeout(() => {
-            click(item, doc ?? document);
+            if (localStorage.getItem('result') == '1')
+                click(item, doc ?? document);
         }, durantion);
     }
 }
-
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         const r = Boolean(request['result']);
         console.log('result', request);
 
-        if (r) {
-            setTimeout(() => {
-                _process()
-            }, 5000);
-        }
+        localStorage.setItem('result', r ? '1' : '0');
 
         sendResponse({ example: '1' });
 
+        location.reload();
         return true;
     }
 );
+
+
+let r = localStorage.getItem('result') === '1';
+console.log(r);
+
+if (r) {
+    setTimeout(() => {
+        _process();
+        process();
+    }, 5000);
+}
+

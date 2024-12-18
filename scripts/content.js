@@ -231,11 +231,14 @@ function run(step, iframe_document) {
 
 function process() {
     const iframe = document.getElementById('yjplFrame');
-    const iframe_document = iframe.contentDocument;
 
-    console.log(iframe_document);
+    if (iframe) {
+        const iframe_document = iframe.contentDocument;
 
-    run(0, iframe_document);
+        console.log(iframe_document);
 
-    console.log('The Infomation Form End.')
+        run(0, iframe_document);
+
+        console.log('The Infomation Form End.')
+    }
 }
