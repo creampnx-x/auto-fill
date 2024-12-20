@@ -1,0 +1,5 @@
+pyenv
+.proxy
+env.py
+
+__pycache__
