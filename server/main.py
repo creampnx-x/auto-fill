@@ -1,3 +1,4 @@
+from operator import le
 from fastapi import FastAPI
 import crud
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,21 +15,27 @@ app.add_middleware(
 
 
 @app.get("/event_list")
-def get_list(user_info: str):
+def get_list(user_info: str, status: str):
     """获取还没有执行的事件"""
-    list = crud.get_items("test_user")
+    # todo code
+    # if status == "not_executed":
+    #     executing = crud.get_items(user_info, "executing")
+    #     if len(executing) > 0:
+    #         return []
 
-    return list
+    result = crud.get_items(user_info, status)
+    
+    return result
 
 
-@app.post("/finished")
-def finished_item():
+@app.put("/status")
+def finished_item(id: str, status: str):
     """将已经完成事件的状态更新"""
-    result = crud.set_status("item_id")
+    result = crud.set_status(item_id=id, status=status)
 
     return result
 
 
 @app.get("/")
 def index():
-    return "i am cxdraining."
+    return "i am raining."

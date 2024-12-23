@@ -6,7 +6,21 @@ const _flow = [
     {
         type: 'click',
         path: '/html/body/div[13]/div[1]/div[1]/ul/li[1]',
-        info: 'li=1是增值税专用发票, 其他按照输入更改'
+        info: 'li=1是增值税专用发票, 其他按照输入更改',
+        process(data) {
+            const type = data.kptype ?? '增值税专用发票';
+
+            const list = [
+                "增值税专用发票",
+                "增值税普通发票",
+                "增值税电子普通发票",
+                "其他发票"
+            ];
+
+            const index = list.indexOf(type) + 1;
+
+            this.path = this.path.replace('li[1]', `li[${index == 0 ? 1 : index}]`);
+        }
     },
     {
         type: 'click',
@@ -16,6 +30,7 @@ const _flow = [
         type: 'search',
         path: '/html/body/div[14]/div/div[2]/div/div[2]/div[1]/div[2]/div[3]/div/input',
         value: '三峡新能源',
+        key: 'contname',
         maybe: true
     },
     {
@@ -32,7 +47,8 @@ const _flow = [
         type: 'input',
         name: 'SM',
         index: 1,
-        value: '这是一份说明'
+        value: '这是一份说明',
+        key: 'shuoming'
     },
     {
         type: 'refresh',
@@ -48,7 +64,8 @@ const _flow = [
         type: 'search',
         path: '/html/body/div[14]/div/div[2]/div/div[2]/div[1]/div[2]/div[3]/div/input',
         value: '三门峡城市发展集团有限公司',
-        maybe: true
+        maybe: true,
+        key: 'goufangmc'
     },
     {
         type: 'click',
@@ -64,13 +81,15 @@ const _flow = [
         type: 'input',
         name: 'GFDZ',
         index: 1,
-        value: '这是地址'
+        value: '这是地址',
+        key: 'dizhi'
     },
     {
         type: 'input',
         name: 'GFLXDH',
         index: 1,
-        value: '12378989065'
+        value: '12378989065',
+        key: 'lianxphone'
     },
     {
         type: 'click',
@@ -79,12 +98,35 @@ const _flow = [
     },
     {
         type: 'click',
-        path: '/html/body/div[14]/div[1]/div[1]/ul/li',
-        info: '选择账号'
+        path: '/html/body/div[15]/div[1]/div[1]/ul/li[1]/span',
+        info: '选择账号',
+        process(data, iframe_document) {
+            let index = 1;
+            const target = data['zhanghu'];
+
+            while (true) {
+                let element = iframe_document.evaluate(
+                    this.path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+                ).singleNodeValue;
+                let value = element.innerText
+
+                if (value == target) {
+                    break;
+                } else {
+                    this.path.replace(`li[${index}]`, `li[${index + 1}]`)
+                    index += 1;
+                }
+
+                if (index > 5) {
+                    this.path = '/html/body/div[15]/div[1]/div[1]/ul/li[1]/span';
+                    break;
+                }
+            }
+        }
     },
 ];
 
-const __flow = [
+const tableFlow = [
     /** table */
     {
         type: 'click',
@@ -128,13 +170,15 @@ const __flow = [
     }
 ]
 
-const flow = [..._flow, ...__flow];
+const flow = [..._flow];
 
-let table_window = '14';
+let mutable_window = '14';
 
 const opration = {
-    input(item, iframe_document) {
-        const { name, index, value, info } = item;
+    input(item, iframe_document, data) {
+        const { name, index, key, info } = item;
+        const value = data[key];
+        console.log(data);
         const element = iframe_document.getElementsByName(name)[index];
 
         console.log(iframe_document.getElementsByName(name));
@@ -174,8 +218,9 @@ const opration = {
             console.log(info);
     },
 
-    search(item, iframe_document) {
-        let { path, value } = item;
+    search(item, iframe_document, data) {
+        let { path, key } = item;
+        const value = data[key];
         let element = iframe_document.evaluate(
             path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
         ).singleNodeValue;
@@ -214,13 +259,16 @@ const opration = {
     }
 }
 
-function run(step, iframe_document) {
+function run(step, iframe_document, data) {
     const item = flow[step];
+    if (item.process)
+        item.process(data, iframe);
+
     if (item) {
         try {
-            opration[item.type](item, iframe_document);
+            opration[item.type](item, iframe_document, data);
             setTimeout(() => {
-                run(step + 1, iframe_document);
+                run(step + 1, iframe_document, data);
             }, 3000);
         } catch (error) {
             console.error(item);
@@ -229,16 +277,40 @@ function run(step, iframe_document) {
     }
 }
 
+function getUserInForm() {
+    const doc = document.getElementById('yjplFrame').contentDocument;
+    const name = doc.getElementsByName('JBR')[1].value;
+
+    return name;
+}
+
 function process() {
-    const iframe = document.getElementById('yjplFrame');
+    // 1. 获取执行中的数据
+    const name = getUserInForm();
+    console.log('user_name', name);
+    fetch(`http://127.0.0.1:8000/event_list?status=executing&user_info=${name}`, {
+        method: "GET"
+    })
+        .then(res => res.json())
+        .then(res => {
+            if (res.basic_info) {
+                const iframe = document.getElementById('yjplFrame');
 
-    if (iframe) {
-        const iframe_document = iframe.contentDocument;
+                if (iframe) {
+                    const iframe_document = iframe.contentDocument;
 
-        console.log(iframe_document);
+                    console.log(iframe_document);
 
-        run(0, iframe_document);
+                    run(0, iframe_document, res.basic_info);
 
-        console.log('The Infomation Form End.')
-    }
+                    // todo: 遍历 items_info 填写 table
+
+                    console.log('The Infomation Form End.');
+
+                    const id = res.basic_info.id ?? '123'
+                    fetch(`http://127.0.0.1:8000/status?id=${id}&status=executed`)
+                        .then(res => res.text())
+                }
+            }
+        })
 }
