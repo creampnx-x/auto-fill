@@ -27,6 +27,14 @@ const _flow = [
         path: '/html/body/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div/form/div[2]/div[1]/div/div[2]/div/div/div/button',
     },
     {
+        type: 'click',
+        path: '/html/body/div[19]/div/div[2]/div/div[2]/div[1]/div[2]/div[1]/div/div'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[25]/div[1]/div[1]/ul/li[2]'
+    },
+    {
         type: 'search',
         path: '/html/body/div[14]/div/div[2]/div/div[2]/div[1]/div[2]/div[3]/div/input',
         value: '三峡新能源',
@@ -146,6 +154,7 @@ const tableFlow = [
     {
         type: 'search',
         path: '/html/body/div[14]/div/div[2]/div/div/div[1]/div[2]/div[3]/div/input',
+        key: 'mingcheng',
         value: '备用'
     },
     {
@@ -160,17 +169,25 @@ const tableFlow = [
     },
     {
         type: 'click',
-        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[14]/div/div',
-        info: '价格总计'
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div',
+        info: '数量'
     },
     {
         type: 'search',
-        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[14]/div/div[2]/table/tbody/tr/td[2]/textarea',
-        value: '10000'
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div[2]/table/tbody/tr/td[2]/textarea',
+        info: '填写数量'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div',
+        info: '单价'
+    },
+    {
+        type: 'search',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div[2]/table/tbody/tr/td[2]/textarea',
+        info: '填写单价'
     }
 ]
-
-const flow = [..._flow];
 
 let mutable_window = '14';
 
@@ -259,21 +276,23 @@ const opration = {
     }
 }
 
-function run(step, iframe_document, data) {
+function run(flow, step, iframe_document, data, resovle) {
     const item = flow[step];
     if (item.process)
-        item.process(data, iframe);
+        item.process(data, iframe_document);
 
     if (item) {
         try {
             opration[item.type](item, iframe_document, data);
             setTimeout(() => {
-                run(step + 1, iframe_document, data);
+                run(flow, step + 1, iframe_document, data, resovle);
             }, 3000);
         } catch (error) {
             console.error(item);
             throw error;
         }
+    } else {
+        resovle();
     }
 }
 
@@ -282,6 +301,18 @@ function getUserInForm() {
     const name = doc.getElementsByName('JBR')[1].value;
 
     return name;
+}
+
+function inputTable(index, itemsInfo, iframe_document, resolve) {
+    if (itemsInfo[index]) {
+        new Promise((resolve, _) => {
+            run(tableFlow, 0, iframe_document, itemsInfo[index], resolve);
+        }).then(_ => {
+            inputTable(index + 1, itemsInfo, iframe_document);
+        });
+    } else {
+        resolve();
+    }
 }
 
 function process() {
@@ -299,18 +330,30 @@ function process() {
                 if (iframe) {
                     const iframe_document = iframe.contentDocument;
 
-                    console.log(iframe_document);
-
-                    run(0, iframe_document, res.basic_info);
-
-                    // todo: 遍历 items_info 填写 table
+                    new Promise((resovle, _) => {
+                        resovle();
+                        // run(_flow, 0, iframe_document, res.basic_info, resovle);
+                    }).then(_ => {
+                        new Promise((resolve, _) => {
+                            inputTable(0, itemsInfo, iframe_document, resolve);
+                        }).then(_ => {
+                            const id = res.basic_info.id ?? '123'
+                            fetch(`http://127.0.0.1:8000/status?id=${id}&status=executed`, {
+                                method: 'PUT'
+                            })
+                                .then(res => res.text())
+                        });
+                    });
 
                     console.log('The Infomation Form End.');
 
-                    const id = res.basic_info.id ?? '123'
-                    fetch(`http://127.0.0.1:8000/status?id=${id}&status=executed`)
-                        .then(res => res.text())
                 }
             }
         })
 }
+
+
+/**
+ * 
+ * 总结：异步编程
+ */

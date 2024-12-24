@@ -122,9 +122,9 @@ function start() {
         }, 5000)
 
         // 3. 关闭当前页面
-        setTimeout(() => {
-            window.close();
-        }, 100000);
+    //     setTimeout(() => {
+    //         window.close();
+    //     }, 100000);
     }
 }
 
