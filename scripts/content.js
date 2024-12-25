@@ -25,20 +25,31 @@ const _flow = [
     {
         type: 'click',
         path: '/html/body/div[1]/div/div[2]/div[2]/div/div/div/div[2]/div/form/div[2]/div[1]/div/div[2]/div/div/div/button',
+        info: '打开窗口'
     },
     {
         type: 'click',
-        path: '/html/body/div[19]/div/div[2]/div/div[2]/div[1]/div[2]/div[1]/div/div'
+        path: '/html/body/div[14]/div/div[2]/div/div[2]/div[1]/div[2]/div[1]/div/div',
     },
     {
         type: 'click',
-        path: '/html/body/div[25]/div[1]/div[1]/ul/li[2]'
+        path: '/html/body/div[14]/div[1]/div[1]/ul/li[2]'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[14]/div/div[2]/div/div[2]/div[1]/div[2]/div[2]/div/div'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[14]/div[1]/div[1]/ul/li[2]',
+        info: '点击相等',
+        addOne: true
     },
     {
         type: 'search',
         path: '/html/body/div[14]/div/div[2]/div/div[2]/div[1]/div[2]/div[3]/div/input',
         value: '三峡新能源',
-        key: 'contname',
+        key: 'contcode',
         maybe: true
     },
     {
@@ -106,9 +117,29 @@ const _flow = [
     },
     {
         type: 'click',
-        path: '/html/body/div[15]/div[1]/div[1]/ul/li[1]/span',
+        path: '/html/body/div[14]/div[1]/div[1]/ul/li[1]/span',
         info: '选择账号',
         process(data, iframe_document) {
+            let path = this.path;
+            let mutable_window = '14';
+
+            let element = iframe_document.evaluate(
+                path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+            ).singleNodeValue;
+
+            while (!element && Number(mutable_window) < 26) {
+                path = String(path).replace(mutable_window, Number(mutable_window) + 1);
+                element = iframe_document.evaluate(
+                    path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+                ).singleNodeValue;
+
+                mutable_window = (Number(mutable_window) + 1).toString();
+            }
+
+            if (!element) {
+                throw new Error("never find a usable element.");
+            }
+
             let index = 1;
             const target = data['zhanghu'];
 
@@ -116,7 +147,7 @@ const _flow = [
                 let element = iframe_document.evaluate(
                     this.path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
                 ).singleNodeValue;
-                let value = element.innerText
+                let value = element.innerHTML
 
                 if (value == target) {
                     break;
@@ -148,8 +179,14 @@ const tableFlow = [
     },
     {
         type: 'click',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[4]/div',
+        table: true
+    },
+    {
+        type: 'click',
         path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[4]/div/div[2]/div/div/div/button',
-        info: 'search crate'
+        info: 'search crate',
+        table: true
     },
     {
         type: 'search',
@@ -170,24 +207,55 @@ const tableFlow = [
     {
         type: 'click',
         path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div',
-        info: '数量'
+        info: '数量',
+        table: true
     },
     {
         type: 'search',
         path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div[2]/table/tbody/tr/td[2]/textarea',
-        info: '填写数量'
+        info: '填写数量',
+        key: 'shuliang',
+        table: true
+    },
+    {
+        type: 'refresh',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div[2]/table/tbody/tr/td[2]/textarea',
+        info: '需要进行更新'
     },
     {
         type: 'click',
-        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div',
-        info: '单价'
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[10]/div/div',
+        info: '单价',
+        table: true
     },
     {
         type: 'search',
-        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[9]/div/div[2]/table/tbody/tr/td[2]/textarea',
-        info: '填写单价'
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[10]/div/div[2]/table/tbody/tr/td[2]/textarea',
+        info: '填写单价',
+        key: 'danjia',
+        table: true
+    },
+    {
+        type: 'refresh',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[10]/div/div[2]/table/tbody/tr/td[2]/textarea',
+        info: '需要进行更新'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[1]/div/div[2]/div[3]/div/div/div/div[2]/div/div[2]/div[1]/div/div[2]/div/div/table/tbody/tr/td[1]/div[1]/span/table[1]/tbody/tr[3]/td[12]/div/div',
     }
-]
+];
+
+let submitFlow = [
+    {
+        type: 'click',
+        path: '/html/body/div[1]/div/div[3]/div/button[3]'
+    },
+    {
+        type: 'click',
+        path: '/html/body/div[3]/div/div[3]/div/button'
+    }
+];
 
 let mutable_window = '14';
 
@@ -227,7 +295,16 @@ const opration = {
             throw new Error("never find a usable element.");
         }
 
+        if (item.addOne) {
+            path = String(path).replace(mutable_window, Number(mutable_window) + 1);
+            element = iframe_document.evaluate(
+                path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
+            ).singleNodeValue;
+        }
+
         console.log(element);
+        console.log(path);
+
         element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
         mutable_window = '14';
 
@@ -278,10 +355,10 @@ const opration = {
 
 function run(flow, step, iframe_document, data, resovle) {
     const item = flow[step];
-    if (item.process)
-        item.process(data, iframe_document);
 
     if (item) {
+        if (item.process)
+            item.process(data, iframe_document);
         try {
             opration[item.type](item, iframe_document, data);
             setTimeout(() => {
@@ -304,11 +381,27 @@ function getUserInForm() {
 }
 
 function inputTable(index, itemsInfo, iframe_document, resolve) {
+    let _flow = tableFlow;
+    if (index > 0) {
+        _flow = _flow.map((value, i) => {
+            if (i > 1) {
+                return {
+                    ...value,
+                    path: value.path.replace('tbody/tr[3]', `tbody/tr[${index + 3}]`)
+                }
+            } else {
+                return value
+            }
+        })
+    }
+
+    console.log(_flow);
+
     if (itemsInfo[index]) {
         new Promise((resolve, _) => {
-            run(tableFlow, 0, iframe_document, itemsInfo[index], resolve);
+            run(_flow, 0, iframe_document, itemsInfo[index], resolve);
         }).then(_ => {
-            inputTable(index + 1, itemsInfo, iframe_document);
+            inputTable(index + 1, itemsInfo, iframe_document, resolve);
         });
     } else {
         resolve();
@@ -331,12 +424,12 @@ function process() {
                     const iframe_document = iframe.contentDocument;
 
                     new Promise((resovle, _) => {
-                        resovle();
-                        // run(_flow, 0, iframe_document, res.basic_info, resovle);
+                        run(_flow, 0, iframe_document, res.basic_info, resovle);
                     }).then(_ => {
                         new Promise((resolve, _) => {
-                            inputTable(0, itemsInfo, iframe_document, resolve);
+                            // inputTable(0, res.items_info, iframe_document, resolve);
                         }).then(_ => {
+                            // run(submitFlow, 0, iframe_document, {}, () => { });
                             const id = res.basic_info.id ?? '123'
                             fetch(`http://127.0.0.1:8000/status?id=${id}&status=executed`, {
                                 method: 'PUT'

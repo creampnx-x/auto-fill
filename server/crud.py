@@ -13,13 +13,36 @@ def get_items(user_info: str, status: str):
         return {}
 
     # item_id = str(r.get("id"))
-    bill_items = database.query_sql(
-        text('select * from "view_invoiceTocaiwukaipiao";')
-        # todo code
-        # text(
-        #     'select * from "view_invoiceTocaiwukaipiao" where item_id=:item_id'
-        # ).bindparams(item_id=item_id)
-    )
+    # bill_items = database.query_sql(
+    #     text('select * from "view_invoiceTocaiwukaipiao";')
+    #     # todo code
+    #     # text(
+    #     #     'select * from "view_invoiceTocaiwukaipiao" where item_id=:item_id'
+    #     # ).bindparams(item_id=item_id)
+    # )
+
+    bill_items = [
+        {
+            "id": "4CAD2EAE-78BF-48B4-9AB4-DDB5B4AAA595",
+            "mid": "3e013dfd-0071-4896-a751-8758bfbf5274",
+            "mingcheng": "专业技术服务",
+            "jiancheng": "研发和技术服务",
+            "guige": "",
+            "danwei": "",
+            "shuliang": "54.82",
+            "danjia": "100",
+        },
+        {
+            "id": "4CAD2EAE-78BF-48B4-9AB4-DDB5B4AAA595",
+            "mid": "3e013dfd-0071-4896-a751-8758bfbf5274",
+            "mingcheng": "专业技术服务",
+            "jiancheng": "研发和技术服务",
+            "guige": "",
+            "danwei": "",
+            "shuliang": "54.82",
+            "danjia": "100",
+        },
+    ]
 
     result = {"basic_info": rs[0], "items_info": bill_items}
 
