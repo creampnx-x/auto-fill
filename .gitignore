@@ -3,3 +3,5 @@ pyenv
 env.py
 
 __pycache__
+example_local_sql.py
+local.db

@@ -77,7 +77,7 @@ function _process() {
 function getData() {
     // 1. 获取数据，选一条未执行的
     const name = getUser();
-    console.log()
+    console.log(name);
     fetch(`http://127.0.0.1:8000/event_list?status=not_executed&user_info=${name}`, {
         method: 'GET'
     })
@@ -95,11 +95,11 @@ function getData() {
                         _process();
                     }
                 })
-            } else { // 5. 没有数据，继续获取
-                setTimeout(() => {
-                    getData();
-                }, 30000);
             }
+            // 5. 有没有数据，都继续获取
+            setTimeout(() => {
+                getData();
+            }, 30000);
         })
 }
 
@@ -122,9 +122,9 @@ function start() {
         }, 5000)
 
         // 3. 关闭当前页面
-    //     setTimeout(() => {
-    //         window.close();
-    //     }, 100000);
+        setTimeout(() => {
+            window.close();
+        }, 100000);
     }
 }
 

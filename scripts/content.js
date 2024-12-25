@@ -127,6 +127,8 @@ const _flow = [
                 path, iframe_document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null
             ).singleNodeValue;
 
+            console.log(element);
+
             while (!element && Number(mutable_window) < 26) {
                 path = String(path).replace(mutable_window, Number(mutable_window) + 1);
                 element = iframe_document.evaluate(
@@ -140,6 +142,8 @@ const _flow = [
                 throw new Error("never find a usable element.");
             }
 
+            this.path = path;
+
             let index = 1;
             const target = data['zhanghu'];
 
@@ -152,12 +156,12 @@ const _flow = [
                 if (value == target) {
                     break;
                 } else {
-                    this.path.replace(`li[${index}]`, `li[${index + 1}]`)
+                    this.path = this.path.replace(`li[${index}]`, `li[${index + 1}]`)
                     index += 1;
                 }
 
                 if (index > 5) {
-                    this.path = '/html/body/div[15]/div[1]/div[1]/ul/li[1]/span';
+                    this.path = '/html/body/div[14]/div[1]/div[1]/ul/li[1]/span';
                     break;
                 }
             }
@@ -369,6 +373,7 @@ function run(flow, step, iframe_document, data, resovle) {
             throw error;
         }
     } else {
+        console.log('this basic is done.')
         resovle();
     }
 }
@@ -427,7 +432,7 @@ function process() {
                         run(_flow, 0, iframe_document, res.basic_info, resovle);
                     }).then(_ => {
                         new Promise((resolve, _) => {
-                            // inputTable(0, res.items_info, iframe_document, resolve);
+                            inputTable(0, res.items_info, iframe_document, resolve);
                         }).then(_ => {
                             // run(submitFlow, 0, iframe_document, {}, () => { });
                             const id = res.basic_info.id ?? '123'

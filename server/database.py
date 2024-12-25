@@ -1,7 +1,7 @@
-from sqlalchemy import TextClause, create_engine, false, true
+from sqlalchemy import TextClause, create_engine
 import env
 
-engine = create_engine(env.SQLALCHEMY_DATABASE_URL)
+engine = create_engine(env.SQLALCHEMY_DATABASE_URL_LOCAL)
 connection = engine.connect()
 
 
@@ -16,6 +16,6 @@ def excute_sql(sql: TextClause):
         connection.execute(sql)
         connection.commit()
     except:
-        return false
+        return False
 
-    return true
+    return True
